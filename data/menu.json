@@ -10,7 +10,7 @@
       "instagramUrl": "https://www.instagram.com/thebeanandbar",
       "whatsappUrl": "https://api.whatsapp.com/send/?phone=%2B96176337179&text&type=phone_number&app_absent=0"
     },
-    "_id": "67622479ee097d842fd9afd4",
+    "_id": "6aeb8299079c48a9ad808454",
     "menuId": "66d751cc2dfd45c14807f7cf",
     "currency": "$",
     "languages": [],
@@ -102,10 +102,7 @@
       "bgImg": "",
       "hide": false,
       "categoryId": "67fd08f0908188f42860d6d6",
-      "sizes": [
-        "Glass",
-        "BTL."
-      ],
+      "sizes": ["Glass", "BTL."],
       "note": null,
       "useSizes": true
     },
@@ -145,10 +142,7 @@
       "bgImg": "",
       "hide": false,
       "note": null,
-      "sizes": [
-        "Glass",
-        "BTL."
-      ],
+      "sizes": ["Glass", "BTL."],
       "useSizes": true
     },
     {
@@ -160,10 +154,7 @@
       "img": null,
       "bgImg": "",
       "hide": false,
-      "sizes": [
-        "Glass",
-        "BTL."
-      ],
+      "sizes": ["Glass", "BTL."],
       "note": null,
       "useSizes": true
     },
@@ -202,10 +193,7 @@
       "img": null,
       "bgImg": "",
       "hide": false,
-      "sizes": [
-        "Glass",
-        "BTL."
-      ],
+      "sizes": ["Glass", "BTL."],
       "note": null,
       "useSizes": true
     },
@@ -218,10 +206,7 @@
       "img": null,
       "bgImg": "",
       "hide": false,
-      "sizes": [
-        "Glass",
-        "BTL."
-      ],
+      "sizes": ["Glass", "BTL."],
       "note": null,
       "useSizes": true
     },

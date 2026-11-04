@@ -4,7 +4,7 @@
 
 /* ── 1. Engine boot ────────────────────────────────────── */
 KSS_ENGINE.init({
-  serviceId: "66d751cc2dfd45c14807f7cf",
+  serviceId: "6aeb8299079c48a9ad808454",
   type: "menu",
   filterEmpty: true,
   fallbackPath: "./data/menu.json",
