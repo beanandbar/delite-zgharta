@@ -178,7 +178,7 @@ KSS_ENGINE.onReady(function (menuData) {
   ensureImagePreview();
 
   addMenuInfo(store);
-  createMenu(menuData.categories, store);
+  createMenu(menuData.subCategories, store);
 
   KSS_ENGINE.waitForImages().then(function () {
     hideLoader();
@@ -293,7 +293,7 @@ function addMenuInfo(store) {
 }
 
 /* ── Create menu ───────────────────────────────────────── */
-function createMenu(categoriesArray, store) {
+function createMenu(subCategoriesArray, store) {
   const currency = store?.currency || "$";
   const container = document.getElementById("menu-container");
 
@@ -353,7 +353,7 @@ function createMenu(categoriesArray, store) {
   toolbar.id = "category-toolbar";
   toolbar.className = "category-toolbar";
   toolbar.setAttribute("role", "tablist");
-  toolbar.setAttribute("aria-label", "Menu categories");
+  toolbar.setAttribute("aria-label", "Menu sections");
   container.appendChild(toolbar);
 
   // Create a container for subCategories and items
@@ -363,20 +363,27 @@ function createMenu(categoriesArray, store) {
   sectionContainer.setAttribute("aria-live", "polite");
   container.appendChild(sectionContainer);
 
-  // Create toolbar buttons for each category
-  categoriesArray.forEach((category, index) => {
-    if (category.hide || !category.subCategories?.length) return;
+  // Use subcategories directly (skip hidden / empty ones)
+  const visibleSubs = (subCategoriesArray || []).filter(
+    (sub) => !sub.hide && sub.items?.length,
+  );
 
+  function getSectionId(sub) {
+    return "subcategory-section-" + sub._id;
+  }
+
+  // Create toolbar buttons for each subcategory
+  visibleSubs.forEach((sub, index) => {
     const btn = document.createElement("button");
-    btn.textContent = category.label;
-    btn.dataset.categoryId = category._id;
+    btn.textContent = sub.label;
+    btn.dataset.subcategoryId = sub._id;
     btn.setAttribute("role", "tab");
     btn.setAttribute("aria-selected", "false");
-    btn.setAttribute("aria-controls", "menu-sections");
+    btn.setAttribute("aria-controls", getSectionId(sub));
     btn.setAttribute("tabindex", index === 0 ? "0" : "-1");
 
     btn.addEventListener("click", () => {
-      renderCategorySections(category, btn);
+      scrollToSubCategory(sub);
     });
 
     // Keyboard navigation
@@ -410,59 +417,69 @@ function createMenu(categoriesArray, store) {
     toolbar.appendChild(btn);
   });
 
-  // Auto-render the first visible category
-  const firstVisible = categoriesArray.find(
-    (c) => !c.hide && c.subCategories?.length,
-  );
-  if (firstVisible) {
-    const firstBtn = toolbar.querySelector(
-      `button[data-category-id="${firstVisible._id}"]`,
-    );
-    renderCategorySections(firstVisible, firstBtn, true);
+  // Render everything once
+  visibleSubs.forEach((sub, subIndex) => renderSubCategory(sub, subIndex));
+
+  function scrollToSubCategory(sub) {
+    const target = document.getElementById(getSectionId(sub));
+    if (!target) return;
+    const toolbarHeight = toolbar.offsetHeight || 0;
+    const y =
+      target.getBoundingClientRect().top + window.scrollY - toolbarHeight - 8;
+    window.scrollTo({ top: y, behavior: "smooth" });
   }
 
-  function renderCategorySections(category, clickedButton, doNotScroll) {
-    sectionContainer.innerHTML = ""; // Clear previous content
-
-    if (!doNotScroll) {
-      setTimeout(() => {
-        const toolbarHeight =
-          document.getElementById("category-toolbar")?.offsetHeight || 0;
-
-        const y = sectionContainer.offsetTop - toolbarHeight;
-
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }, 50);
-    }
-
-    // Set active class and ARIA attributes on toolbar buttons
-    const buttons = toolbar.querySelectorAll("button");
-    buttons.forEach((btn) => {
-      btn.classList.remove("active");
-      btn.setAttribute("aria-selected", "false");
-      btn.setAttribute("tabindex", "-1");
+  function setActiveButton(sub) {
+    let activeBtn = null;
+    toolbar.querySelectorAll("button").forEach((btn) => {
+      const isActive = btn.dataset.subcategoryId === String(sub._id);
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-selected", isActive ? "true" : "false");
+      btn.setAttribute("tabindex", isActive ? "0" : "-1");
+      if (isActive) activeBtn = btn;
     });
-
-    if (clickedButton) {
-      clickedButton.classList.add("active");
-      clickedButton.setAttribute("aria-selected", "true");
-      clickedButton.setAttribute("tabindex", "0");
-
-      clickedButton.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
+    if (activeBtn) {
+      // Scroll only the toolbar horizontally, not the page
+      const left =
+        activeBtn.offsetLeft -
+        (toolbar.clientWidth - activeBtn.offsetWidth) / 2;
+      toolbar.scrollTo({ left, behavior: "smooth" });
     }
+  }
 
-    category.subCategories.forEach((sub, subIndex) => {
-      if (sub.hide || !sub.items?.length) return;
+  // Scroll spy: highlight the subcategory currently in view
+  let spyTicking = false;
+  function updateActiveOnScroll() {
+    spyTicking = false;
+    if (!visibleSubs.length) return;
+    const threshold = (toolbar.offsetHeight || 0) + 24;
+    let current = visibleSubs[0];
+    for (const sub of visibleSubs) {
+      const el = document.getElementById(getSectionId(sub));
+      if (el && el.getBoundingClientRect().top <= threshold) current = sub;
+    }
+    setActiveButton(current);
+  }
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!spyTicking) {
+        spyTicking = true;
+        requestAnimationFrame(updateActiveOnScroll);
+      }
+    },
+    { passive: true },
+  );
+  updateActiveOnScroll();
 
+  function renderSubCategory(sub, subIndex) {
+    {
       const usesSizes = sub.useSizes === true && Array.isArray(sub.sizes);
       const shouldUseArabic = sub.isArabic === true;
 
       const subDiv = document.createElement("article");
       subDiv.className = "subcategory";
+      subDiv.id = getSectionId(sub);
       subDiv.style.animationDelay = `${subIndex * 60}ms`;
 
       if (shouldUseArabic) {
@@ -659,62 +676,6 @@ function createMenu(categoriesArray, store) {
       }
 
       sectionContainer.appendChild(subDiv);
-    });
-  }
-
-  // Swipe handling
-  let startX = 0;
-  let startY = 0;
-  let endX = 0;
-  let endY = 0;
-
-  sectionContainer.addEventListener("touchstart", (e) => {
-    startX = e.changedTouches[0].screenX;
-    startY = e.changedTouches[0].screenY;
-  });
-
-  sectionContainer.addEventListener("touchend", (e) => {
-    endX = e.changedTouches[0].screenX;
-    endY = e.changedTouches[0].screenY;
-    handleSwipe();
-  });
-
-  function handleSwipe() {
-    const threshold = 50;
-    const verticalThreshold = 30;
-
-    const deltaX = Math.abs(startX - endX);
-    const deltaY = Math.abs(startY - endY);
-
-    if (deltaX < threshold || deltaY > verticalThreshold) return;
-
-    const currentIndex = categoriesArray.findIndex(
-      (c) =>
-        c._id === toolbar.querySelector("button.active")?.dataset.categoryId,
-    );
-
-    let nextIndex = null;
-
-    if (startX > endX) {
-      // Swiped left → next
-      nextIndex = categoriesArray.findIndex((c, i) => i > currentIndex);
-    } else {
-      // Swiped right → previous
-      const reversed = [...categoriesArray].reverse();
-      const prevCandidates = reversed.filter(
-        (c) => categoriesArray.indexOf(c) < currentIndex,
-      );
-      if (prevCandidates.length) {
-        nextIndex = categoriesArray.indexOf(prevCandidates[0]);
-      }
-    }
-
-    if (nextIndex !== null && nextIndex >= 0 && categoriesArray[nextIndex]) {
-      const nextCat = categoriesArray[nextIndex];
-      const nextBtn = toolbar.querySelector(
-        `button[data-category-id="${nextCat._id}"]`,
-      );
-      renderCategorySections(nextCat, nextBtn);
     }
   }
 }
