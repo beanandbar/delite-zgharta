@@ -112,7 +112,7 @@ button {
 .store-header img {
   width: auto;
   height: auto;
-  max-width: min(400px, 85vw);
+  max-width: min(300px, 85vw);
   max-height: 350px;
   object-fit: contain;
   border-radius: 12px;
@@ -599,7 +599,7 @@ button {
   }
 
   .store-header img {
-    max-width: min(450px, 80vw);
+    max-width: min(300px, 80vw);
     max-height: 400px;
   }
 
@@ -646,7 +646,7 @@ button {
   }
 
   .store-header img {
-    max-width: 90vw;
+    max-width: 50vw;
     max-height: 280px;
   }
 
@@ -760,7 +760,7 @@ button {
 
 @media (max-width: 360px) {
   .store-header img {
-    max-width: 92vw;
+    max-width: 45vw;
     max-height: 260px;
   }
 
