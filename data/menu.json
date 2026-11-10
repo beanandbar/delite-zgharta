@@ -1,5 +1,5 @@
 {
-  "_dataFreshness": "Tuesday, 10 November 2026 13:00:00 UTC",
+  "_dataFreshness": "Tuesday, 10 November 2026 15:30:00 UTC",
   "store": {
     "sm": {
       "email": null,
@@ -110,7 +110,8 @@
       "useSizes": false,
       "sizes": [],
       "hide": false,
-      "note": "All Sandwiches are Served with Fries and Coleslaw\nUpgrade to Brown Ciabatta: +$1.00"
+      "note": "All Sandwiches are Served with Fries and Coleslaw\nUpgrade to Brown Ciabatta: +$1.00\nAdd Curly Fries 2$",
+      "isArabic": false
     },
     {
       "_id": "6aeb830b079c48a9ad8084e5",
@@ -136,7 +137,8 @@
       "useSizes": false,
       "sizes": [],
       "hide": false,
-      "note": "All Burgers are Served with Fries and Coleslaw"
+      "note": "All Burgers are Served with Fries and Coleslaw\nAdd Curly Fries 2$",
+      "isArabic": false
     },
     {
       "_id": "6aeb830b079c48a9ad8084e1",
